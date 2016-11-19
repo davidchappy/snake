@@ -41,12 +41,14 @@ var snake = {
   head: '<span class="head">O</span>',
   headPosition: "20,20",
   direction: 'r',
-  snakeBody: [this.headPosition, "20,21", "20,22"],
+  snakeBody: ["20,21", "20,22"],
   move: function() {
 
   },
-  eat: function() {
-
+  eat: function(square) {
+    let newSquare = this.headPosition;
+    this.snakeBody.unshift(newSquare);
+    this.headPosition = square.toString();
   },
   render: function() {
     // render head
@@ -54,10 +56,28 @@ var snake = {
     headSquare.html(this.head);
 
     // render body
-    for(var i = 1; i < this.snakeBody.length; i++) {
+    for(var i = 0; i < this.snakeBody.length; i++) {
       let memberSquare = $grid.find('[data-coords="' + this.snakeBody[i] + '"]');
       memberSquare.addClass('is-snake');
     }
+  }
+}
+
+var food = {
+  defaultSquare: '<span class="food">F</span>',
+  appear: function() {
+    let randomNumber = Math.floor((Math.random() * 1600));
+    let targetCoords = grid.gridCoords[randomNumber];
+    let targetSquare = $grid.find('[data-coords="' + targetCoords.toString() + '"]');
+
+    if (targetSquare.hasClass('is-snake') || targetSquare.children().length != 0) {
+      this.appear();
+    } else {
+      targetSquare.html(this.defaultSquare);
+    }
+  },
+  disappear: function() {
+    $grid.find('.food').html(grid.defaultSquare);
   }
 }
 
@@ -68,10 +88,16 @@ $(document).ready(function() {
   grid.renderGrid();
   snake.render();
 
-  // reset, move and re-render
+  // reset, (manual)move, eat and re-render
   grid.resetGrid();
   snake.headPosition = ["20,19"];
-  snake.snakeBody = [snake.headPosition, "20,20", "20,21"];
+  snake.snakeBody = ["20,20", "20,21"];
+  snake.eat("20,18");
+  snake.eat("20,17");
   snake.render();
+
+  // throw in some food
+  food.appear();
+  food.disappear();
 });
 
