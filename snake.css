@@ -1,0 +1,51 @@
+/* mini reset */
+* {
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+body {
+  padding-top: 1em;
+}
+
+h1, p {
+  text-align: center;  
+}
+
+h1 {
+  margin-bottom: 1em;
+}
+
+p {
+  margin-top: 1em;
+}
+
+#grid {
+  border: 1px solid gray;
+  width: 800px;
+  margin: 0 auto;
+  line-height: 0;
+}
+
+.square {
+  border: 1px solid gray;
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  line-height: 0;
+  overflow: hidden;
+}
+
+.square span {
+  display: inline-block;
+  margin: 0 auto;
+  line-height: 1;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+}
+
+.is-snake {
+  background: gray;
+}
