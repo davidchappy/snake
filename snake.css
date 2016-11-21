@@ -21,6 +21,12 @@ p {
   margin-top: 1em;
 }
 
+#pause {
+  text-align: center;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
 #grid {
   border: 1px solid gray;
   width: 800px;

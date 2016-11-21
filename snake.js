@@ -1,6 +1,15 @@
 // DOM elements
 const $grid = $('#grid');
 
+// Global variables
+const snakeSpeed = 250;
+const foodSpeed = 5000;
+const foodDisappearSpeed = 30000;
+var snakeTimer = null;
+var foodTimer = null;
+var foodRemovalTimer = null;
+
+
 // Objects
 var game = {
   gameOver: function() {
@@ -22,8 +31,7 @@ var grid = {
   },
   resetGrid: function() {
     for(let i = 0; i < this.gridSize; i++) {
-       $grid.find('[data-coords="' + this.gridCoords[i] + '"]')
-          .html(this.defaultSquare).removeClass('is-snake');
+      grid.findSquare(this.gridCoords[i]).html(this.defaultSquare).removeClass('is-snake');
     };
   },
   setCoordinates: function() {
@@ -82,7 +90,10 @@ var grid = {
   randomSquare: function() {
     let randomNumber = Math.floor((Math.random() * this.gridSize));
     let targetCoords = this.gridCoords[randomNumber];
-    return $grid.find('[data-coords="' + targetCoords.toString() + '"]');
+    return this.findSquare(targetCoords.toString());
+  },
+  findSquare: function(targetSquare) {
+    return $grid.find('[data-coords="' + targetSquare + '"]');
   }
 };
 
@@ -97,7 +108,11 @@ var snake = {
     $snakeHead.html(blankSquare);
     let destination = grid.findAdjacent(this.headPosition, direction);
     if(destination) {
+      if (food.isFood(destination)) {
+        this.eat(destination);
+      }
       this.headPosition = destination;
+      this.checkOverlap();
       this.render();
     } else {
       game.gameOver();
@@ -105,18 +120,32 @@ var snake = {
   },
   listen: function() {
     let $snakeHead = this.findSnakeHead();
-    $('body').on('keypress', $snakeHead, function(event) {
+    $('body').on('keydown', $snakeHead, function(event) {
       event.preventDefault();
       switch(event.which) {
-        case 97:
-          snake.move('l'); break;
-        case 119:
-          snake.move('u'); break;
-        case 100:
-          snake.move('r'); break;
-        case 115:
-          snake.move('d'); break;
+        case 37:
+          snake.direction = ('l'); break;
+        case 38:
+          snake.direction = ('u'); break;
+        case 39:
+          snake.direction = ('r'); break;
+        case 40:
+          snake.direction = ('d'); break;
         default: break; 
+      }
+    });
+    $('body').on('click', '#pause', function(event) {
+      event.preventDefault();
+      if($(this).hasClass('paused')) {
+        $(this).html('pause');
+        timer.startSnake();
+        $(this).toggleClass('paused');
+      } else {
+        $(this).html('unpause');
+        clearInterval(snakeTimer);
+        clearInterval(foodTimer);
+        clearInterval(foodRemovalTimer);
+        $(this).toggleClass('paused');
       }
     });
   },
@@ -127,39 +156,78 @@ var snake = {
   },
   render: function() {
     // render head
-    let headSquare = $grid.find('[data-coords="' + this.headPosition + '"]');
+    let headSquare = this.findSnakeHead();
     headSquare.html(this.head);
 
     // render body
     for(var i = 0; i < this.snakeBody.length; i++) {
-      let memberSquare = $grid.find('[data-coords="' + this.snakeBody[i] + '"]');
+      let memberSquare = grid.findSquare(this.snakeBody[i]);
       memberSquare.addClass('is-snake');
     }
   },
   findSnakeHead: function() {
-    return $grid.find('[data-coords="' + this.headPosition + '"]');
+    return grid.findSquare(this.headPosition);
+  },
+  checkOverlap: function() {
+    if($.inArray(this.headPosition, this.snakeBody) != -1) {
+      game.gameOver();
+      return true;
+    } else {
+      return false;
+    }
   }
 }
 
 var food = {
   defaultSquare: '<span class="food">F</span>',
+  foodList: [],
   appear: function() {
     let targetSquare = grid.randomSquare();
-
     if (targetSquare.hasClass('is-snake') || targetSquare.children().length != 0) {
       this.appear();
     } else {
+      this.foodList.push(targetSquare);
       targetSquare.html(this.defaultSquare);
     }
   },
   disappear: function() {
-    $grid.find('.food').html(blankSquare);
+    let foodIndex = 0;
+    if(this.foodList.length > 1) {
+      foodIndex = Math.floor(Math.random(this.foodList.length));
+    } else if(this.foodList.length === 0) {
+      return;
+    }
+    this.foodList[foodIndex].html(grid.defaultSquare);
+    this.foodList.splice(foodIndex, 1);
+  },
+  isFood: function(targetSquare) {
+    console.log(targetSquare);
+    let $targetDiv = $(grid.findSquare(targetSquare));
+    if($targetDiv.find('span.food').length) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
 
-// Global variables
-const blankSquare = grid.defaultSquare;
+var timer = {
+  startSnake: function() {
+    snakeTimer = setInterval(function() {
+      snake.move(snake.direction);
+    }, snakeSpeed);
+  },
+  startFood: function() {
+    foodTimer = setInterval(function() {
+      food.appear();
+    }, foodSpeed);
+    foodRemovalTimer = setInterval(function() {
+      food.disappear();
+    }, foodDisappearSpeed);
+  }
+}
 
+const blankSquare = grid.defaultSquare;
 
 // Run the game
 $(document).ready(function() {
@@ -167,20 +235,10 @@ $(document).ready(function() {
   grid.setCoordinates();
   grid.renderGrid();
   snake.render();
-
-  // reset, (manual)move, eat and re-render
-  // grid.resetGrid();
-  // snake.headPosition = ["20,19"];
-  // snake.snakeBody = ["20,20", "20,21"];
-  // snake.eat("20,18");
-  // snake.eat("20,17");
-  // snake.render();
-
-  // throw in some food
-  food.appear();
-  // food.disappear();
-
-  var gameOver = false;
   snake.listen();
+
+  // start timers
+  timer.startFood();
+  timer.startSnake();
 });
 
