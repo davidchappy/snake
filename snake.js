@@ -1,5 +1,5 @@
 // DOM elements
-var $grid = $('#grid');
+const $grid = $('#grid');
 
 // Objects
 var game = {
@@ -78,6 +78,11 @@ var grid = {
         }
         break;
     }
+  },
+  randomSquare: function() {
+    let randomNumber = Math.floor((Math.random() * this.gridSize));
+    let targetCoords = this.gridCoords[randomNumber];
+    return $grid.find('[data-coords="' + targetCoords.toString() + '"]');
   }
 };
 
@@ -89,7 +94,7 @@ var snake = {
   move: function(direction) {
     console.log("moved " + direction);
     let $snakeHead = this.findSnakeHead();
-    $snakeHead.html(grid.defaultSquare);
+    $snakeHead.html(blankSquare);
     let destination = grid.findAdjacent(this.headPosition, direction);
     if(destination) {
       this.headPosition = destination;
@@ -139,9 +144,7 @@ var snake = {
 var food = {
   defaultSquare: '<span class="food">F</span>',
   appear: function() {
-    let randomNumber = Math.floor((Math.random() * 1600));
-    let targetCoords = grid.gridCoords[randomNumber];
-    let targetSquare = $grid.find('[data-coords="' + targetCoords.toString() + '"]');
+    let targetSquare = grid.randomSquare();
 
     if (targetSquare.hasClass('is-snake') || targetSquare.children().length != 0) {
       this.appear();
@@ -150,10 +153,12 @@ var food = {
     }
   },
   disappear: function() {
-    $grid.find('.food').html(grid.defaultSquare);
+    $grid.find('.food').html(blankSquare);
   }
 }
 
+// Global variables
+const blankSquare = grid.defaultSquare;
 
 
 // Run the game
@@ -172,7 +177,7 @@ $(document).ready(function() {
   // snake.render();
 
   // throw in some food
-  // food.appear();
+  food.appear();
   // food.disappear();
 
   var gameOver = false;
