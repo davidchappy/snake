@@ -9,7 +9,6 @@ var snakeTimer = null;
 var foodTimer = null;
 var foodRemovalTimer = null;
 
-
 // Objects
 var game = {
   gameOver: function() {
@@ -101,22 +100,27 @@ var snake = {
   head: '<span class="head">O</span>',
   headPosition: "20,20",
   direction: 'r',
-  snakeBody: [],
+  snakeBody: ["20,19", "20,18"],
   move: function(direction) {
     console.log("moved " + direction);
-    let $snakeHead = this.findSnakeHead();
-    $snakeHead.html(blankSquare);
+    this.findSnakeHead().html(grid.defaultSquare);
     let destination = grid.findAdjacent(this.headPosition, direction);
+
+    // check for conflict
     if(destination) {
       if (food.isFood(destination)) {
         this.eat(destination);
       }
+      this.checkOverlap(destination);
+      this.snakeBody.unshift(this.headPosition);
+      let tail = snake.snakeBody.pop();
+      grid.findSquare(tail).removeClass('is-snake');
       this.headPosition = destination;
-      this.checkOverlap();
       this.render();
     } else {
       game.gameOver();
     }
+
   },
   listen: function() {
     let $snakeHead = this.findSnakeHead();
@@ -168,8 +172,8 @@ var snake = {
   findSnakeHead: function() {
     return grid.findSquare(this.headPosition);
   },
-  checkOverlap: function() {
-    if($.inArray(this.headPosition, this.snakeBody) != -1) {
+  checkOverlap: function(destination) {
+    if($.inArray(destination, this.snakeBody) != -1) {
       game.gameOver();
       return true;
     } else {
