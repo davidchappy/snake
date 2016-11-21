@@ -1,5 +1,6 @@
 // DOM elements
 const $grid = $('#grid');
+const $score = $('#score');
 
 // Global variables
 const snakeSpeed = 150;
@@ -155,6 +156,8 @@ var snake = {
     let newSquare = this.headPosition;
     this.snakeBody.unshift(newSquare);
     this.headPosition = square.toString();
+    let currentScore = $score.html();
+    $score.html(parseInt(currentScore) + 1);
   },
   render: function() {
     // render head

@@ -21,7 +21,8 @@ p {
   margin-top: 1em;
 }
 
-#pause {
+#pause,
+.score {
   text-align: center;
   display: block;
   margin-bottom: 0.5rem;
