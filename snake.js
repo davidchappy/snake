@@ -2,9 +2,9 @@
 const $grid = $('#grid');
 
 // Global variables
-const snakeSpeed = 250;
-const foodSpeed = 5000;
-const foodDisappearSpeed = 30000;
+const snakeSpeed = 150;
+const foodSpeed = 3000;
+const foodDisappearSpeed = 20000;
 var snakeTimer = null;
 var foodTimer = null;
 var foodRemovalTimer = null;
@@ -105,8 +105,6 @@ var snake = {
     console.log("moved " + direction);
     this.findSnakeHead().html(grid.defaultSquare);
     let destination = grid.findAdjacent(this.headPosition, direction);
-
-    // check for conflict
     if(destination) {
       if (food.isFood(destination)) {
         this.eat(destination);
