@@ -2,6 +2,13 @@
 var $grid = $('#grid');
 
 // Objects
+var game = {
+  gameOver: function() {
+    alert('<h1>Game Over!</h1>');
+    window.location.reload(true);
+  }
+}
+
 var grid = {
   gridSize: 1600,
   xLength: 40,
@@ -34,6 +41,43 @@ var grid = {
       this.gridCoords[i] = [x, y];  
     };
     return this.gridCoords;
+  },
+  findAdjacent: function(currentPosition, direction) {
+    let array = currentPosition.split(',').map(Number);
+    switch(direction) {
+      case 'l':
+        if(array[1] != 1) {
+          array[1] -= 1;
+          return array.toString();  
+        } else {
+          return false;
+        }
+        break;
+      case 'r':
+        if(array[1] != 40) {
+          array[1] += 1;
+          return array.toString();  
+        } else {
+          return false;
+        } 
+        break;
+      case 'u':
+        if(array[0] != 1) {
+          array[0] -= 1;
+          return array.toString();  
+        } else {
+          return false;
+        }
+        break;
+      case 'd':
+        if(array[0] != 40) {
+          array[0] += 1;
+          return array.toString();  
+        } else {
+          return false;
+        }
+        break;
+    }
   }
 };
 
@@ -41,9 +85,35 @@ var snake = {
   head: '<span class="head">O</span>',
   headPosition: "20,20",
   direction: 'r',
-  snakeBody: ["20,21", "20,22"],
-  move: function() {
-
+  snakeBody: [],
+  move: function(direction) {
+    console.log("moved " + direction);
+    let $snakeHead = this.findSnakeHead();
+    $snakeHead.html(grid.defaultSquare);
+    let destination = grid.findAdjacent(this.headPosition, direction);
+    if(destination) {
+      this.headPosition = destination;
+      this.render();
+    } else {
+      game.gameOver();
+    }
+  },
+  listen: function() {
+    let $snakeHead = this.findSnakeHead();
+    $('body').on('keypress', $snakeHead, function(event) {
+      event.preventDefault();
+      switch(event.which) {
+        case 97:
+          snake.move('l'); break;
+        case 119:
+          snake.move('u'); break;
+        case 100:
+          snake.move('r'); break;
+        case 115:
+          snake.move('d'); break;
+        default: break; 
+      }
+    });
   },
   eat: function(square) {
     let newSquare = this.headPosition;
@@ -60,6 +130,9 @@ var snake = {
       let memberSquare = $grid.find('[data-coords="' + this.snakeBody[i] + '"]');
       memberSquare.addClass('is-snake');
     }
+  },
+  findSnakeHead: function() {
+    return $grid.find('[data-coords="' + this.headPosition + '"]');
   }
 }
 
@@ -81,6 +154,8 @@ var food = {
   }
 }
 
+
+
 // Run the game
 $(document).ready(function() {
   // initiate grid and snake
@@ -89,15 +164,18 @@ $(document).ready(function() {
   snake.render();
 
   // reset, (manual)move, eat and re-render
-  grid.resetGrid();
-  snake.headPosition = ["20,19"];
-  snake.snakeBody = ["20,20", "20,21"];
-  snake.eat("20,18");
-  snake.eat("20,17");
-  snake.render();
+  // grid.resetGrid();
+  // snake.headPosition = ["20,19"];
+  // snake.snakeBody = ["20,20", "20,21"];
+  // snake.eat("20,18");
+  // snake.eat("20,17");
+  // snake.render();
 
   // throw in some food
-  food.appear();
-  food.disappear();
+  // food.appear();
+  // food.disappear();
+
+  var gameOver = false;
+  snake.listen();
 });
 
