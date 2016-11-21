@@ -3,7 +3,6 @@ const $grid = $('#grid');
 const $score = $('#score');
 
 // Global variables
-const snakeSpeed = 150;
 const foodSpeed = 3000;
 const foodDisappearSpeed = 20000;
 var snakeTimer = null;
@@ -98,10 +97,11 @@ var grid = {
 };
 
 var snake = {
-  head: '<span class="head">O</span>',
   headPosition: "20,20",
   direction: 'r',
+  head: '<span class="head r"></span>',
   snakeBody: ["20,19", "20,18"],
+  speed: 250,
   move: function(direction) {
     console.log("moved " + direction);
     this.findSnakeHead().html(grid.defaultSquare);
@@ -119,7 +119,6 @@ var snake = {
     } else {
       game.gameOver();
     }
-
   },
   listen: function() {
     let $snakeHead = this.findSnakeHead();
@@ -141,7 +140,7 @@ var snake = {
       event.preventDefault();
       if($(this).hasClass('paused')) {
         $(this).html('pause');
-        timer.startSnake();
+        timer.startSnake(snake.speed);
         $(this).toggleClass('paused');
       } else {
         $(this).html('unpause');
@@ -153,15 +152,20 @@ var snake = {
     });
   },
   eat: function(square) {
+    this.speed -= this.speed * .05;
     let newSquare = this.headPosition;
     this.snakeBody.unshift(newSquare);
     this.headPosition = square.toString();
     let currentScore = $score.html();
     $score.html(parseInt(currentScore) + 1);
+    clearInterval(snakeTimer);
+    timer.startSnake(snake.speed);
   },
   render: function() {
     // render head
     let headSquare = this.findSnakeHead();
+    headSquare.children('span').removeClass();
+    this.head = '<span class="head ' + this.direction + '"></span>';
     headSquare.html(this.head);
 
     // render body
@@ -184,7 +188,7 @@ var snake = {
 }
 
 var food = {
-  defaultSquare: '<span class="food">F</span>',
+  defaultSquare: '<span class="food"></span>',
   foodList: [],
   appear: function() {
     let targetSquare = grid.randomSquare();
@@ -217,10 +221,10 @@ var food = {
 }
 
 var timer = {
-  startSnake: function() {
+  startSnake: function(speed) {
     snakeTimer = setInterval(function() {
       snake.move(snake.direction);
-    }, snakeSpeed);
+    }, speed);
   },
   startFood: function() {
     foodTimer = setInterval(function() {
@@ -244,6 +248,6 @@ $(document).ready(function() {
 
   // start timers
   timer.startFood();
-  timer.startSnake();
+  timer.startSnake(snake.speed);
 });
 
