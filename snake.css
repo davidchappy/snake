@@ -3,6 +3,7 @@
   padding: 0;
   margin: 0;
   border: 0;
+  line-height: 1;
 }
 
 body {
@@ -15,6 +16,8 @@ h1, p {
 
 h1 {
   margin-bottom: 0.5em;
+  margin-top: 1em;
+  line-height: 0;
 }
 
 p {
@@ -28,9 +31,20 @@ p {
   margin-bottom: 0.5rem;
 }
 
+.score {
+  color: black;
+  font-weight: bold;
+}
+
+.description {
+  font-size: 0.9em;
+  font-style: italic;
+  margin-bottom: 0.5em;
+}
+
 #grid {
   border: 1px solid gray;
-  width: 800px;
+  width: 400px;
   margin: 0 auto;
   line-height: 0;
 }

@@ -12,14 +12,14 @@ var foodRemovalTimer = null;
 // Objects
 var game = {
   gameOver: function() {
-    alert('<h1>Game Over!</h1>');
+    alert('Game Over!');
     window.location.reload(true);
   }
 }
 
 var grid = {
-  gridSize: 1600,
-  xLength: 40,
+  gridSize: 400,
+  xLength: 20,
   defaultSquare: " ",
   gridCoords: [],
   renderGrid: function() {
@@ -40,7 +40,7 @@ var grid = {
       if (i === 0 || i % this.xLength === 0) {
         x++;
       }
-      if (i <= 39) {
+      if (i <= (this.xLength - 1)) {
         y = i+1;
       } else {
         y = (i % this.xLength)+1;
@@ -61,7 +61,7 @@ var grid = {
         }
         break;
       case 'r':
-        if(array[1] != 40) {
+        if(array[1] != this.xLength) {
           array[1] += 1;
           return array.toString();  
         } else {
@@ -77,7 +77,7 @@ var grid = {
         }
         break;
       case 'd':
-        if(array[0] != 40) {
+        if(array[0] != this.xLength) {
           array[0] += 1;
           return array.toString();  
         } else {
@@ -97,11 +97,11 @@ var grid = {
 };
 
 var snake = {
-  headPosition: "20,20",
+  headPosition: "10,10",
   direction: 'r',
   head: '<span class="head r"></span>',
-  snakeBody: ["20,19", "20,18"],
-  speed: 250,
+  snakeBody: ["10,9", "10,8"],
+  speed: 400,
   move: function(direction) {
     console.log("moved " + direction);
     this.findSnakeHead().html(grid.defaultSquare);
@@ -141,6 +141,7 @@ var snake = {
       if($(this).hasClass('paused')) {
         $(this).html('pause');
         timer.startSnake(snake.speed);
+        timer.startFood();
         $(this).toggleClass('paused');
       } else {
         $(this).html('unpause');
@@ -247,7 +248,7 @@ $(document).ready(function() {
   snake.listen();
 
   // start timers
-  timer.startFood();
-  timer.startSnake(snake.speed);
+  // timer.startFood();
+  // timer.startSnake(snake.speed);
 });
 
